@@ -1,12 +1,8 @@
 package cc.unilock.yeptwo.networking;
 
-import java.nio.charset.StandardCharsets;
-
 import cc.unilock.yeptwo.YepTwo;
 import cc.unilock.yeptwo.networking.payload.YepPayload;
-import io.netty.buffer.Unpooled;
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -71,8 +67,6 @@ public class PacketSender {
     private static void sendMessage(ServerPlayer player, String msg) {
         YepTwo.LOGGER.debug("Sending message \""+msg+"\" for player \""+player.getName().getString()+"\"");
 
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBytes(msg.getBytes(StandardCharsets.UTF_8));
-        player.connection.send(new ClientboundCustomPayloadPacket(new YepPayload(buf)));
+        player.connection.send(new ClientboundCustomPayloadPacket(new YepPayload(msg)));
     }
 }
