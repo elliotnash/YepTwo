@@ -17,8 +17,8 @@ public class PacketSender {
     // id : username : displayname : message
     private static final String YEP_DEATH_FORMAT = "%s␞%s␟%s␟%s";
 
-    private static final ResourceLocation YEP_ADVANCEMENT = new ResourceLocation("yep", "advancement");
-    private static final ResourceLocation YEP_DEATH = new ResourceLocation("yep", "death");
+    private static final ResourceLocation YEP_ADVANCEMENT = ResourceLocation.tryBuild("yep", "advancement");
+    private static final ResourceLocation YEP_DEATH = ResourceLocation.tryBuild("yep", "death");
 
     private static final String YEP_ADV_DEFAULT = "DEFAULT";
     private static final String YEP_ADV_GOAL = "GOAL";
