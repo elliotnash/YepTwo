@@ -3,7 +3,7 @@ package cc.unilock.yeptwo.networking;
 import java.nio.charset.StandardCharsets;
 
 import cc.unilock.yeptwo.YepTwo;
-import cc.unilock.yeptwo.networking.payload.SimplePayload;
+import cc.unilock.yeptwo.networking.payload.YepPayload;
 import io.netty.buffer.Unpooled;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,8 +16,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 
 public class PacketSender {
-    private static final ResourceLocation YEP_GENERIC = new ResourceLocation("yep", "generic");
-
     // id : username : displayname : advType : title : description
     private static final String YEP_ADV_FORMAT = "%s␞%s␟%s␟%s␟%s␟%s";
     // id : username : displayname : message
@@ -75,6 +73,6 @@ public class PacketSender {
 
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeBytes(msg.getBytes(StandardCharsets.UTF_8));
-        player.connection.send(new ClientboundCustomPayloadPacket(new SimplePayload(YEP_GENERIC, buf)));
+        player.connection.send(new ClientboundCustomPayloadPacket(new YepPayload(buf)));
     }
 }
