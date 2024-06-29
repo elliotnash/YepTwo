@@ -1,30 +1,30 @@
 package cc.unilock.yeptwo.networking;
 
+import java.nio.charset.StandardCharsets;
+
 import cc.unilock.yeptwo.YepTwo;
 import cc.unilock.yeptwo.networking.payload.SimplePayload;
 import io.netty.buffer.Unpooled;
-import net.minecraft.advancement.AdvancementEntry;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.GameRules;
-
-import java.nio.charset.StandardCharsets;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
 
 public class PacketSender {
-    private static final Identifier YEP_GENERIC = new Identifier("yep", "generic");
+    private static final ResourceLocation YEP_GENERIC = new ResourceLocation("yep", "generic");
 
     // id : username : displayname : advType : title : description
     private static final String YEP_ADV_FORMAT = "%s␞%s␟%s␟%s␟%s␟%s";
     // id : username : displayname : message
     private static final String YEP_DEATH_FORMAT = "%s␞%s␟%s␟%s";
 
-    private static final Identifier YEP_ADVANCEMENT = new Identifier("yep", "advancement");
-    private static final Identifier YEP_DEATH = new Identifier("yep", "death");
+    private static final ResourceLocation YEP_ADVANCEMENT = new ResourceLocation("yep", "advancement");
+    private static final ResourceLocation YEP_DEATH = new ResourceLocation("yep", "death");
 
     private static final String YEP_ADV_DEFAULT = "DEFAULT";
     private static final String YEP_ADV_GOAL = "GOAL";
@@ -32,21 +32,21 @@ public class PacketSender {
     private static final String YEP_ADV_CHALLENGE = "CHALLENGE";
 
 
-    public static void sendAdvancementMessage(PlayerEntity player, AdvancementEntry advancement) {
-        if (player instanceof ServerPlayerEntity spe) {
+    public static void sendAdvancementMessage(Player player, AdvancementHolder advancement) {
+        if (player instanceof ServerPlayer spe) {
             var display = advancement.value().display().orElse(null);
 
-            if (spe.getAdvancementTracker().getProgress(advancement).isDone()
+            if (spe.getAdvancements().getOrStartProgress(advancement).isDone()
                     && display != null
-                    && display.shouldAnnounceToChat()
-                    && spe.getWorld().getGameRules().getBoolean(GameRules.ANNOUNCE_ADVANCEMENTS)
+                    && display.shouldAnnounceChat()
+                    && spe.level().getGameRules().getBoolean(GameRules.RULE_ANNOUNCE_ADVANCEMENTS)
             ) {
                 var username = spe.getName().getString();
                 var displayname = spe.getDisplayName().getString();
                 var title = display.getTitle().getString();
                 var description = display.getDescription().getString();
 
-                String advType = switch (display.getFrame()) {
+                String advType = switch (display.getType()) {
                     case CHALLENGE -> YEP_ADV_CHALLENGE;
                     case GOAL -> YEP_ADV_GOAL;
                     case TASK -> YEP_ADV_TASK;
@@ -60,21 +60,21 @@ public class PacketSender {
     }
 
     public static void sendDeathMessage(Entity entity, DamageSource source) {
-        if (entity instanceof ServerPlayerEntity spe) {
+        if (entity instanceof ServerPlayer spe) {
             var username = spe.getName().getString();
             var displayname = spe.getDisplayName().getString();
-            var message = source.getDeathMessage(spe).getString();
+            var message = source.getLocalizedDeathMessage(spe).getString();
 
             String msg = String.format(YEP_DEATH_FORMAT, YEP_DEATH, username, displayname, message);
             sendMessage(spe, msg);
         }
     }
 
-    private static void sendMessage(ServerPlayerEntity player, String msg) {
+    private static void sendMessage(ServerPlayer player, String msg) {
         YepTwo.LOGGER.debug("Sending message \""+msg+"\" for player \""+player.getName().getString()+"\"");
 
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeBytes(msg.getBytes(StandardCharsets.UTF_8));
-        player.networkHandler.sendPacket(new CustomPayloadS2CPacket(new SimplePayload(YEP_GENERIC, buf)));
+        player.connection.send(new ClientboundCustomPayloadPacket(new SimplePayload(YEP_GENERIC, buf)));
     }
 }
