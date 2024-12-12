@@ -22,7 +22,7 @@ config="yeptwo-neoforge.mixins.json"
 [[dependencies.yeptwo]]
 modId = "neoforge"
 type = "required"
-versionRange = "[1,)"
+versionRange = "[21.0.0,)"
 ordering = "NONE"
 side = "BOTH"
 
