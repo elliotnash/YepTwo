@@ -3,7 +3,9 @@
   "package": "cc.unilock.yeptwo.neoforge.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
-  "mixins": [],
+  "mixins": [
+    "NetworkRegistryMixin"
+  ],
   "client": [],
   "injectors": {
     "defaultRequire": 1
