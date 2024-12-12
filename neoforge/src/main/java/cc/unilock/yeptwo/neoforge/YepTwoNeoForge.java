@@ -28,6 +28,6 @@ public class YepTwoNeoForge {
     }
 
     public void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
-        event.registrar("yep").playToClient(YepPayload.TYPE, YepPayload.CODEC, (arg, iPayloadContext) -> {});
+        event.registrar("0").optional().playToClient(YepPayload.TYPE, YepPayload.CODEC, (arg1, arg2) -> {});
     }
 }
